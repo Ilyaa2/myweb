@@ -1,6 +1,8 @@
 <template>
-  <canvas-component ref="canvas" @needR="this.$refs.canvas.rValue = this.rValue" @validateR="validateR" @send-dot-to-parent="sendDot"/>
-<!--  <div id="error">cewewverver</div>-->
+  <router-link to="/start" style="margin: 0 auto; display: block; text-align: center">Разлогиниться</router-link>
+  <canvas-component ref="canvas" @needR="this.$refs.canvas.rValue = this.rValue" @validateR="validateR"
+                    @send-dot-to-parent="sendDot"/>
+  <!--  <div id="error">cewewverver</div>-->
   <div class="d-flex justify-content-center align-self-center">
     <button-xcomponents ref="x_comp"/>
 
@@ -9,11 +11,11 @@
     <button-rcomponents ref="r_comp" @changed="rChanged"/>
   </div>
 
-<!--  <input type="text" class="form-control" placeholder="Enter Y" v-model="yText" id="y">-->
+  <!--  <input type="text" class="form-control" placeholder="Enter Y" v-model="yText" id="y">-->
   <text-ycomponent id="y" ref="y_comp"/>
 
-<!--  <button type="button" class="btn btn-warning" @click="getDots" style="margin: 0 auto; display: block">Получить точки</button>-->
-<!--  <button type="button" class="btn btn-warning" @click="clearCanvas" style="margin: 0 auto; display: block">Очистить канвас</button>-->
+  <!--  <button type="button" class="btn btn-warning" @click="getDots" style="margin: 0 auto; display: block">Получить точки</button>-->
+  <!--  <button type="button" class="btn btn-warning" @click="clearCanvas" style="margin: 0 auto; display: block">Очистить канвас</button>-->
   <table-component :dots="dots"/>
 </template>
 
@@ -25,6 +27,8 @@ import CanvasComponent from "@/components/form/CanvasComponent.vue";
 import TableComponent from "@/components/form/TableComponent.vue";
 import data from "bootstrap/js/src/dom/data";
 import TextYcomponent from "@/components/form/TextYcomponent.vue";
+import router from "@/router";
+
 export default {
   name: "FormComponent",
   components: {TextYcomponent, ButtonRcomponents, ButtonXcomponents, CanvasComponent, TableComponent},
@@ -34,6 +38,9 @@ export default {
       dots: [],
       rValue: "",
     }
+  },
+  beforeRouteLeave() {
+    localStorage.setItem("token", "");
   },
   methods: {
     trySubmit: function () {
@@ -52,62 +59,92 @@ export default {
       let x_comp = this.$refs.x_comp;
       let y_comp = this.$refs.y_comp;
       fetch(this.$root.$data.myurl + 'dot', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer_' + localStorage.getItem("token")},
         body: JSON.stringify(
             transferObject
         )
-      })
-          .then(function (response) {
-            response.json().then(function (data) {
+      }).then(res => {
+            res.json().then(function (data) {
+              console.log("data", data, data.length);
               dots.push(data);
               canvas.drawDot(data);
               x_comp.buttonX = "";
               y_comp.yText = "";
             })
-          })
+      }).catch(e => {
+        alert("Incorrect or expired JWT token");
+        router.push("login");
+      })
     },
 
-    collectData(){
+    collectData() {
       return {
         x: String(this.$refs.x_comp.buttonX),
         y: String(this.$refs.y_comp.yText),
         r: String(this.$refs.r_comp.buttonR)
       };
     },
-
-    getDots(){
+    /*
+    getDots() {
       let dots = this.dots;
-      fetch(this.$root.$data.myurl + 'dot',{
+      fetch(this.$root.$data.myurl + 'dot', {
             method: "GET",
-            headers:{
-              //Authorization: "Basic dXNlcjozN2I1ZmJlYy1hZmQ4LTQ3YjYtYTFkNi0wYTk2ODg5ZGM4ZDA="
-              //Authorization: "Basic dXNlcjp1c2Vy",
-              Authorization: "Basic user:user",
-              accept: 'application/json'
+            headers: {
+              accept: 'application/json',
+              Authorization: 'Bearer_' + localStorage.getItem("token")
             }
           }
-
-      ).then(function(responce){
-        responce.json().then(function (data){
-          //console.log("data",data, data.length);
+      ).then(function (responce) {
+        console.log(responce.status);
+        responce.json().then(function (data) {
           dots.splice(0);
           data.forEach(item => dots.push(item));
         })
       })
     },
-    rChanged(value){
-      this.rValue = value;
-      let canvas = this.$refs.canvas;
-      fetch(this.$root.$data.myurl + 'dot/'+value).then(function(responce){
-        responce.json().then(function (data){
-          //console.log("data",data, data.length);
-          canvas.drawCanvas();
-          data.forEach(item => canvas.drawDot(item));
+
+     */
+    getDots() {
+      let dots = this.dots;
+      fetch(this.$root.$data.myurl + 'dot', {
+            method: "GET",
+            headers: {
+              accept: 'application/json',
+              Authorization: 'Bearer_' + localStorage.getItem("token")
+            }
+          }
+      ).then((res) => {
+        res.json().then(function (data) {
+          dots.splice(0);
+          data.forEach(item => dots.push(item));
         })
+      }).catch((e) => {
+        alert("Incorrect or expired JWT token");
+        router.push("login");
       })
     },
 
-    validateR(){
+    rChanged(value) {
+      this.rValue = value;
+      let canvas = this.$refs.canvas;
+      fetch(this.$root.$data.myurl + 'dot/' + value, {
+        method: "GET",
+        headers: {
+          accept: 'application/json',
+          Authorization: 'Bearer_' + localStorage.getItem("token")
+        }
+      }).then(res => {
+        res.json().then(function (data) {
+          canvas.drawCanvas();
+          data.forEach(item => canvas.drawDot(item));
+        })
+      }).catch((e) => {
+        alert("Incorrect or expired JWT token");
+        router.push("login");
+      })
+    },
+    validateR() {
       alert("please enter r");
     }
   },

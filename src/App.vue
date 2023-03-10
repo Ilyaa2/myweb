@@ -1,8 +1,6 @@
 <template>
-  <header>
 <!--    <h1>efeew</h1>-->
     <router-view></router-view>
-  </header>
 </template>
 
 
