@@ -2,7 +2,7 @@
   <router-link to="/start" style="margin: 0 auto; display: block; text-align: center">Разлогиниться</router-link>
   <canvas-component ref="canvas" @needR="this.$refs.canvas.rValue = this.rValue" @validateR="validateR"
                     @send-dot-to-parent="sendDot"/>
-  <!--  <div id="error">cewewverver</div>-->
+    <div id="error"></div>
   <div class="d-flex justify-content-center align-self-center">
     <button-xcomponents ref="x_comp"/>
 
@@ -66,7 +66,7 @@ export default {
         )
       }).then(res => {
             res.json().then(function (data) {
-              console.log("data", data, data.length);
+              //console.log("data", data, data.length);
               dots.push(data);
               canvas.drawDot(data);
               x_comp.buttonX = "";
@@ -167,10 +167,10 @@ export default {
 
   width: 500px;
   margin: 0 auto;
-  margin: 20px;
+  /*margin: 20px;*/
   padding: 5px;
   text-align: center;
-  border: #222222 dashed;
+  /*border: #222222 dashed;*/
 }
 
 #submit {

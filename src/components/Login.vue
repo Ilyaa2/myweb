@@ -1,4 +1,7 @@
 <template>
+  <router-link to="/start" style="margin: 0 auto; display: block; text-align: center">Стартовая страница</router-link>
+  <br/>
+  <div style="display: block; margin: 0 auto; text-align: center">
   <p>Залогиньтесь</p>
   <br>
   <label for="login">Имя</label>
@@ -7,7 +10,8 @@
   <label for="password">Пароль</label>
   <input v-model="password" id="password">
   <br>
-  <button type="button" @click="signIn">Залогиниться</button>
+  <button type="button" @click="signIn">Войти</button>
+  </div>
 </template>
 
 <script>
@@ -36,7 +40,6 @@ export default {
                 alert("Wrong username or password");
                 localStorage.setItem("token", "");
               } else {
-                console.log('data', data);
                 localStorage.setItem("token", data.token);
                 router.push("main");
               }
@@ -44,28 +47,7 @@ export default {
           })
     },
 
-  sendDot() {
-    fetch(this.$root.$data.myurl + 'dot', {
-      method: 'POST', headers: {'Content-Type': 'application/json', "Authorization": 'Bearer_'+localStorage.getItem("token")},
-      body: JSON.stringify({x: '2', y: '5', r: '1'})
-    })
-        .then(function (response) {
-          response.json().then(function (data) {
-            console.log('data', data);
-          })
-        })
-  },
 
-  getDot() {
-    fetch(this.$root.$data.myurl + 'dots', {
-      method: 'GET', headers: {'Content-Type': 'application/json', "Authorization": 'Bearer_'+localStorage.getItem("token")},
-    })
-        .then(function (response) {
-          response.json().then(function (data) {
-            console.log('data', data);
-          })
-        })
-  },
   }
 }
 </script>
